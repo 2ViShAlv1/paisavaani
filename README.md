@@ -5,7 +5,7 @@
 
 Most budgeting apps make you fill forms and then stop at "you spent ₹X on food". PaisaVaani ("money-voice") works the way Indians actually deal with money. You say it messily ("umm spent like 400, no wait, 450 on Swiggy yaar"), forward your bank SMS, or drop a statement PDF. A **living money model** then learns from your corrections, catches subscription creep, nudges you when you drift, and replays your goals under any *what-if* you ask about out loud.
 
-**Live demo:** _<add Vercel URL>_ · **Demo video:** _<add link>_
+**Live demo:** _<add Vercel URL>_ · **Demo video (82s, captioned):** [docs/paisavaani-demo.mp4](docs/paisavaani-demo.mp4)
 
 ![Dashboard](docs/screenshots/01-dashboard.png)
 
