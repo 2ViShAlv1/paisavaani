@@ -85,29 +85,38 @@ export default function VoiceDock({ open, setOpen, go, preset }) {
     }
   }, [open, preset]);
 
-  const reset = () => { setText(''); setPhase('idle'); setResult(null); setProvider(''); };
+  const reset = () => { runRef.current++; setRefining(false); setText(''); setPhase('idle'); setResult(null); setProvider(''); };
+
+  const runRef = useRef(0);
+  const [refining, setRefining] = useState(false);
+  const editedRef = useRef(false);
 
   async function understand(input = text) {
     if (!input.trim()) return;
-    setPhase('thinking');
-    const ctx = { today: todayISO(), summary: { categories_in_use: Object.keys(moneySummary(state).avgMonthlySpendByCategory), goals: state.goals.map((g) => g.name), learnedRules: state.rules.map((r) => `${r.key}→${r.category}`) } };
-    const ai = await callAI('voice', input, ctx, 40000);
-    let res;
-    if (ai.ok && ai.data && Array.isArray(ai.data.actions)) {
-      res = ai.data;
-      setProvider(ai.provider);
-    } else {
-      res = localUnderstand(input, { today: todayISO() });
-      setProvider('Local rule engine (offline fallback)');
-    }
-    setResult(normalize(res, state.rules));
+    const run = ++runRef.current;
+    editedRef.current = false;
+    // 1) instant on-device parse so the user is never staring at a spinner
+    setResult(normalize(localUnderstand(input, { today: todayISO() }), state.rules));
+    setProvider('Instant on-device parse');
     setPhase('review');
+    setRefining(true);
+    // 2) LLM refines it (better merchants, multi-intent, Hinglish); replaces the preview if the user hasn't edited it
+    const ctx = { today: todayISO(), summary: { categories_in_use: Object.keys(moneySummary(state).avgMonthlySpendByCategory), goals: state.goals.map((g) => g.name), learnedRules: state.rules.map((r) => `${r.key}→${r.category}`) } };
+    const ai = await callAI('voice', input, ctx, 55000);
+    if (run !== runRef.current) return;
+    setRefining(false);
+    if (ai.ok && ai.data && Array.isArray(ai.data.actions) && !editedRef.current) {
+      setResult(normalize(ai.data, state.rules));
+      setProvider(`AI · ${ai.provider}`);
+    } else if (!ai.ok) {
+      setProvider('On-device parse (AI unreachable)');
+    }
   }
 
   const segments = useMemo(() => (result ? highlight(text, result.fillers, result.corrections) : []), [result, text]);
 
-  const patchAction = (i, patch) => setResult((r) => ({ ...r, actions: r.actions.map((a, j) => (j === i ? { ...a, ...patch } : a)) }));
-  const patchTxn = (i, k, patch) => setResult((r) => ({ ...r, actions: r.actions.map((a, j) => (j === i ? { ...a, transactions: a.transactions.map((t, x) => (x === k ? { ...t, ...patch } : t)) } : a)) }));
+  const patchAction = (i, patch) => { editedRef.current = true; setResult((r) => ({ ...r, actions: r.actions.map((a, j) => (j === i ? { ...a, ...patch } : a)) })); };
+  const patchTxn = (i, k, patch) => (editedRef.current = true) && setResult((r) => ({ ...r, actions: r.actions.map((a, j) => (j === i ? { ...a, transactions: a.transactions.map((t, x) => (x === k ? { ...t, ...patch } : t)) } : a)) }));
 
   function apply() {
     const msgs = [];
@@ -221,6 +230,7 @@ export default function VoiceDock({ open, setOpen, go, preset }) {
                   <Badge tone="slate">{(result.fillers || []).length} fillers removed</Badge>
                   <Badge tone="red">{(result.corrections || []).length} self-correction{(result.corrections || []).length === 1 ? '' : 's'} resolved</Badge>
                   <Badge tone="indigo"><Cpu size={11} /> {provider}</Badge>
+                  {refining && <Badge tone="amber"><Wave /> AI refining…</Badge>}
                 </div>
               </div>
             </div>
@@ -234,7 +244,7 @@ export default function VoiceDock({ open, setOpen, go, preset }) {
             </div>
 
             <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-              <button className="btn btn-ghost" onClick={() => setPhase('idle')}>← Edit what I said</button>
+              <button className="btn btn-ghost" onClick={() => { runRef.current++; setRefining(false); setPhase('idle'); }}>← Edit what I said</button>
               <button className="btn btn-primary" onClick={apply} disabled={!result.actions.some((a) => a.include)}><Check size={16} /> Confirm & apply</button>
             </div>
           </div>

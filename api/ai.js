@@ -86,7 +86,7 @@ function extractJSON(text) {
   throw new Error('no json');
 }
 
-async function callOpenAICompat({ url, key, model, system, user, timeoutMs = 45000, jsonMode = true }) {
+async function callOpenAICompat({ url, key, model, system, user, timeoutMs = 45000, jsonMode = true, extra = {} }) {
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), timeoutMs);
   try {
@@ -99,6 +99,7 @@ async function callOpenAICompat({ url, key, model, system, user, timeoutMs = 450
         temperature: 0.2,
         messages: [{ role: 'system', content: system }, { role: 'user', content: user }],
         ...(jsonMode ? { response_format: { type: 'json_object' } } : {}),
+        ...extra,
       }),
     });
     if (!res.ok) throw new Error(`${res.status} ${(await res.text()).slice(0, 200)}`);
@@ -117,7 +118,8 @@ function providers() {
   if (process.env.GEMINI_API_KEY) {
     list.push({ name: 'Google Gemini', url: 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', key: process.env.GEMINI_API_KEY, model: process.env.GEMINI_MODEL || 'gemini-2.5-flash' });
   }
-  list.push({ name: 'Pollinations · GPT-OSS 20B', url: 'https://text.pollinations.ai/openai', key: process.env.POLLINATIONS_TOKEN || '', model: 'openai' });
+  // keyless fallback: low reasoning effort keeps latency ~10-15s
+  list.push({ name: 'Pollinations · GPT-OSS 20B', url: 'https://text.pollinations.ai/openai', key: process.env.POLLINATIONS_TOKEN || '', model: 'openai', extra: { reasoning_effort: 'low' }, timeoutMs: 50000 });
   return list;
 }
 
