@@ -22,7 +22,7 @@ export default function Dashboard({ go, openVoice }) {
 
   const chart = Object.entries(bud)
     .filter(([c]) => !['Transfers'].includes(c))
-    .map(([c, b]) => ({ cat: c, short: `${CAT_EMOJI[c] || ''} ${c.split(' ')[0]}`, spent: Math.round(st.byCat[c] || 0), budget: b, pace: Math.round(b * (day / dim)) }))
+    .map(([c, b]) => ({ cat: c, short: { 'Food & Dining': 'Dining', 'Utilities & Bills': 'Bills', Entertainment: 'Fun', 'Health & Fitness': 'Health', 'Rent & Housing': 'Housing', Subscriptions: 'Subs', 'Investments & Savings': 'Invest', 'Personal Care': 'Care', 'EMI & Loans': 'EMI' }[c] || c.split(' ')[0], spent: Math.round(st.byCat[c] || 0), budget: b, pace: Math.round(b * (day / dim)) }))
     .filter((d) => d.spent || d.budget)
     .sort((a, b) => b.budget - a.budget)
     .slice(0, 10);
