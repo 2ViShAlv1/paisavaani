@@ -14,19 +14,22 @@
 html, body, #root { height: 100%; }
 body { background: #f6f7f9; color: #0f172a; -webkit-font-smoothing: antialiased; }
 
-.card { background: white; border: 1px solid #e7e9ee; border-radius: 16px; box-shadow: 0 1px 2px rgba(16,24,40,.04); }
-.chip { display: inline-flex; align-items: center; gap: .35rem; border-radius: 999px; padding: .2rem .6rem; font-size: .75rem; font-weight: 500; }
-.btn { display: inline-flex; align-items: center; justify-content: center; gap: .45rem; border-radius: 10px; padding: .55rem .95rem; font-size: .875rem; font-weight: 600; transition: all .15s; cursor: pointer; }
-.btn:disabled { opacity: .5; cursor: not-allowed; }
-.btn-primary { background: var(--color-brand-600); color: white; }
-.btn-primary:hover:not(:disabled) { background: var(--color-brand-700); }
-.btn-ghost { background: white; border: 1px solid #e2e5ea; color: #1f2937; }
-.btn-ghost:hover:not(:disabled) { background: #f8fafc; }
-.btn-dark { background: #0b1220; color: white; }
-.btn-dark:hover:not(:disabled) { background: #1e293b; }
-.input { width: 100%; border: 1px solid #dfe3e8; border-radius: 10px; padding: .55rem .75rem; font-size: .875rem; background: white; outline: none; }
-.input:focus { border-color: var(--color-brand-500); box-shadow: 0 0 0 3px rgba(16,185,129,.15); }
-.label { font-size: .72rem; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: #64748b; }
+/* component classes live in a layer so Tailwind utilities (bg-gradient, text-*) can override them */
+@layer components {
+  .card { background: white; border: 1px solid #e7e9ee; border-radius: 16px; box-shadow: 0 1px 2px rgba(16,24,40,.04); }
+  .chip { display: inline-flex; align-items: center; gap: .35rem; border-radius: 999px; padding: .2rem .6rem; font-size: .75rem; font-weight: 500; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: .45rem; border-radius: 10px; padding: .55rem .95rem; font-size: .875rem; font-weight: 600; transition: all .15s; cursor: pointer; }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+  .btn-primary { background: var(--color-brand-600); color: white; }
+  .btn-primary:hover:not(:disabled) { background: var(--color-brand-700); }
+  .btn-ghost { background: white; border: 1px solid #e2e5ea; color: #1f2937; }
+  .btn-ghost:hover:not(:disabled) { background: #f8fafc; }
+  .btn-dark { background: #0b1220; color: white; }
+  .btn-dark:hover:not(:disabled) { background: #1e293b; }
+  .input { width: 100%; border: 1px solid #dfe3e8; border-radius: 10px; padding: .55rem .75rem; font-size: .875rem; background: white; outline: none; }
+  .input:focus { border-color: var(--color-brand-500); box-shadow: 0 0 0 3px rgba(16,185,129,.15); }
+  .label { font-size: .72rem; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: #64748b; }
+}
 
 .filler { color: #94a3b8; text-decoration: line-through; text-decoration-color: #cbd5e1; }
 .heard { color: #dc2626; text-decoration: line-through; background: #fef2f2; border-radius: 4px; padding: 0 2px; }

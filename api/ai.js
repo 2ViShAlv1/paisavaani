@@ -132,11 +132,17 @@ export async function runTask(task, input, context) {
   const { system, user } = build(input, context || {});
   const errors = [];
   for (const p of providers()) {
-    try {
-      const data = await callOpenAICompat({ ...p, system, user });
-      return { ok: true, provider: p.name, data };
-    } catch (e) {
-      errors.push(`${p.name}: ${e.message}`);
+    // keyless provider gets one retry: transient network blips are common on free tiers
+    const attempts = p.key ? 1 : 2;
+    for (let i = 0; i < attempts; i++) {
+      try {
+        const data = await callOpenAICompat({ ...p, system, user });
+        return { ok: true, provider: p.name, data };
+      } catch (e) {
+        errors.push(`${p.name}: ${e.message}`);
+        if (e.name === 'AbortError') break; // timed out: don't double the wait
+        if (i < attempts - 1) await new Promise((r) => setTimeout(r, 2000)); // back off (rate limits)
+      }
     }
   }
   return { ok: false, errors };

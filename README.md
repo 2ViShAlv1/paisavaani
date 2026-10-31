@@ -7,6 +7,18 @@ Most budgeting apps make you fill forms and then stop at "you spent ₹X on food
 
 **Live demo:** _<add Vercel URL>_ · **Demo video:** _<add link>_
 
+![Dashboard](docs/screenshots/01-dashboard.png)
+
+| Messy speech → "400, no wait, 450" resolved | Teach a rule by voice |
+|---|---|
+| ![Voice](docs/screenshots/02-voice-understood.png) | ![Rule](docs/screenshots/03-voice-rule.png) |
+| **What-if: cut dining 30%** | **Guardrail: no stock tips** |
+| ![Plan](docs/screenshots/06-plan-what-if.png) | ![Coach](docs/screenshots/07-coach-guardrail.png) |
+| **Bank SMS import (OTP ignored)** | **Subscriptions & price hikes** |
+| ![Import](docs/screenshots/08-import-sms.png) | ![Subs](docs/screenshots/05-subscriptions.png) |
+| **Learned rules + correction loop** | **AI monthly review** |
+| ![Transactions](docs/screenshots/04-transactions.png) | ![Review](docs/screenshots/09-monthly-review.png) |
+
 ---
 
 ## Why this matters
@@ -25,7 +37,7 @@ Most budgeting apps make you fill forms and then stop at "you spent ₹X on food
 | Recurring payments & subscriptions | Detected from cadence (weekly/monthly/quarterly/yearly) plus amount stability. Alerts for **price hikes** (Netflix ₹499 → ₹649, +30%), **missed charges**, **unused** subscriptions (say *"I'm not using cult.fit anymore"*) and **overlapping OTT** services. |
 | Persistent financial profile | Income, fixed costs, emergency fund and goals with target dates. You can set them by voice (*"I earn about 95k in hand, rent is 22k…"*). Saved locally, and every AI call reasons over it. |
 | Goal planner + **what-if simulation** | Baseline comes from your last 3 months of real spending; SIPs are treated as committed money. Goals are funded earliest-deadline first. Sliders, presets, or ask by voice: *"what if I cut dining out by 30% and rent goes up 3k?"* You get the savings curve, ETA per goal, and "2 months sooner / later". |
-| Nudges when spending drifts | Pace-aware: spend-to-date is compared against the budget × how far through the month you are. Each nudge is framed by its goal impact (*"≈ 18 days later for New MacBook"*), with one-tap "simulate fixing this". |
+| Nudges when spending drifts | Pace-aware: spend-to-date is compared against the budget × how far through the month you are. Each nudge is framed by its goal impact (*"₹4,920 of drift ≈ 13 days later for New MacBook"*), plus the combined slip across all drifting categories, with one-tap "simulate fixing this". |
 | Monthly review report | Stats, category vs budget vs last month, biggest spends, subscriptions and goals. An LLM writes a headline, a narrative and 3 concrete actions. Printable to PDF. |
 | **Guardrails: no specific securities** | Three layers: (1) a system-prompt rule, (2) intent detection on the question (*"which stock should I buy"*), (3) an output filter that blocks named stocks, funds or coins next to buy-language. The coach then *educates* (emergency fund first, asset classes by time horizon, expense ratios), suggests a SEBI-registered adviser, and offers to model the scenario. |
 | Confirmation before acting | Nothing from voice or imports is saved until you review and confirm. Every action is editable. |
@@ -56,7 +68,7 @@ npm run dev            # http://localhost:5173 (serverless route is mounted in d
 A demo persona (Riya, Bengaluru, 3 months of realistic UPI data) loads on first visit. Use **Profile → Start fresh** to use your own data. A sample messy PDF statement is at `/sample-statement.pdf`, and sample SMS/CSV are one click away on the Import page.
 
 ## 2-minute demo script
-1. **Dashboard:** dining is ₹4k over plan, and the nudge says the MacBook slips 18 days. Netflix price hike is flagged.
+1. **Dashboard:** dining is ₹4.9k over plan; nudges show each category's goal impact (MacBook slips ≈ 19 days in total). Netflix price hike is flagged.
 2. **Speak:** *"Umm so yesterday I spent like 400, no wait, 450 on Swiggy, and uh my Uber was like 230."* Watch fillers and the correction get resolved, then confirm.
 3. **Teach:** *"Ramesh Kumar is basically my landlord yaar, so that should be rent, not transfer."* 4 past transactions are re-labelled and the emergency-fund cover recalculates.
 4. **Import:** paste sample SMS (the OTP is ignored, Netflix autopay is caught), then drop the PDF statement.

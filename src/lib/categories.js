@@ -35,6 +35,7 @@ export const MERCHANT_DICT = [
   [/blinkit|grofers/, 'Groceries', 'Blinkit'],
   [/bigbasket|bbnow|big basket/, 'Groceries', 'BigBasket'],
   [/dmart|d mart|avenue supermarts|reliance fresh|more retail|nature.?s basket|jiomart/, 'Groceries', null],
+  [/kirana|provision store|general store|supermarket|super market|vegetables|sabzi|dairy/, 'Groceries', null],
   [/rent|landlord|nobroker|house owner/, 'Rent & Housing', null],
   [/maintenance|society/, 'Rent & Housing', null],
   [/airtel|jio(?!cinema|hotstar|saavn)|vodafone|vi postpaid|bsnl|act fibernet|hathway|excitel/, 'Utilities & Bills', null],

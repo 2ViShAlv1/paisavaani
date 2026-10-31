@@ -97,7 +97,7 @@ export function detectRecurring(txns, subsState = {}, today = todayISO()) {
     const change = prevAvg ? ((last.amount - prevAvg) / prevAvg) * 100 : 0;
     const days = { weekly: 7, monthly: 30, quarterly: 91, yearly: 365 }[cadence];
     const nextDate = addDays(last.date, Math.round(avgGap));
-    const perMonth = last.amount * (30.44 / days);
+    const perMonth = cadence === 'monthly' ? last.amount : last.amount * (30.44 / days);
     const st = subsState[key] || {};
     const isSub = ['Subscriptions', 'Entertainment', 'Health & Fitness', 'Education'].includes(last.category) || /netflix|spotify|prime|hotstar|youtube|cult|gym|icloud|google one/i.test(key);
     const alerts = [];
@@ -143,12 +143,17 @@ export function nudges(state, today = todayISO()) {
   }
   // goal impact framing
   const goals = (state.goals || []).filter((g) => g.target > g.saved);
-  const over = out.reduce((s, n) => s + Math.max(0, n.projected - n.budget), 0);
-  if (goals.length && over > 0) {
+  if (goals.length) {
     const g = [...goals].sort((a, b) => a.targetDate.localeCompare(b.targetDate))[0];
     const monthly = Math.max(1, (g.target - g.saved) / Math.max(1, daysBetween(today, g.targetDate) / 30.44));
-    const delayDays = Math.round((over / monthly) * 30.44);
-    out.forEach((n) => (n.goalImpact = `Drift this month ≈ ${delayDays} day${delayDays === 1 ? '' : 's'} later for “${g.name}”.`));
+    const days = (amt) => Math.round((amt / monthly) * 30.44);
+    out.forEach((n) => {
+      const drift = Math.max(0, Math.max(n.spent, n.projected) - n.budget);
+      const dd = days(drift);
+      if (dd >= 1) n.goalImpact = `${inr(drift)} of drift ≈ ${dd} day${dd === 1 ? '' : 's'} later for “${g.name}”.`;
+    });
+    const total = days(out.reduce((s, n) => s + Math.max(0, Math.max(n.spent, n.projected) - n.budget), 0));
+    if (out.length > 1 && total >= 1) out.totalImpact = `Together: “${g.name}” slips ≈ ${total} days.`;
   }
   return out.sort((a, b) => (a.level === 'high' ? -1 : 1) - (b.level === 'high' ? -1 : 1));
 }

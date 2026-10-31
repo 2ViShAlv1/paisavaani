@@ -81,6 +81,7 @@ export default function Dashboard({ go, openVoice }) {
                 {n.goalImpact && <div className="text-xs mt-1 opacity-80 pl-6">{n.goalImpact}</div>}
               </div>
             ))}
+            {nd.totalImpact && nd.length > 1 && <div className="text-xs font-semibold text-slate-600 px-1">{nd.totalImpact}</div>}
             {!nd.length && <Empty>You're within plan in every category. 🎉</Empty>}
             {!!nd.length && (
               <button className="btn btn-ghost w-full" onClick={() => go('plan', { scenario: { label: 'Fix the drift', categoryPct: Object.fromEntries(nd.slice(0, 2).map((n) => [n.cat, -20])) } })}>

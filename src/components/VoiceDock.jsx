@@ -227,8 +227,8 @@ export default function VoiceDock({ open, setOpen, go, preset }) {
                 <div className="label mb-2 text-emerald-700 flex items-center gap-1"><Wand2 size={12} /> What I understood</div>
                 <p className="text-[15px] leading-relaxed font-medium text-slate-800">{result.clean_text}</p>
                 <div className="flex flex-wrap gap-2 mt-3">
-                  <Badge tone="slate">{(result.fillers || []).length} fillers removed</Badge>
-                  <Badge tone="red">{(result.corrections || []).length} self-correction{(result.corrections || []).length === 1 ? '' : 's'} resolved</Badge>
+                  {!!(result.fillers || []).length && <Badge tone="slate">{result.fillers.length} filler{result.fillers.length === 1 ? '' : 's'} removed</Badge>}
+                  {!!(result.corrections || []).length && <Badge tone="red">{result.corrections.length} self-correction{result.corrections.length === 1 ? '' : 's'} resolved</Badge>}
                   <Badge tone="indigo"><Cpu size={11} /> {provider}</Badge>
                   {refining && <Badge tone="amber"><Wave /> AI refining…</Badge>}
                 </div>
