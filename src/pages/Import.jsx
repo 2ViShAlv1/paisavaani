@@ -132,7 +132,7 @@ export default function Import({ go }) {
               <span className="text-xs text-slate-500">Text is extracted in your browser. If the layout is messy, AI extracts the rows.</span>
               <input type="file" accept=".pdf" className="hidden" onChange={onFile} />
             </label>
-            <a className="text-xs text-emerald-700 font-semibold" href="/sample-statement.pdf" download>Download a sample messy PDF statement to try →</a>
+            <a className="text-xs text-emerald-700 font-semibold" href={`${import.meta.env.BASE_URL}sample-statement.pdf`} download>Download a sample messy PDF statement to try →</a>
             {busy && <div className="text-sm text-slate-500 flex items-center gap-2"><Wave /> {busy}</div>}
           </div>
         )}

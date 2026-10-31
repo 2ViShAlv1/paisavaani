@@ -1,20 +1,46 @@
-// Client for /api/ai with timeout. Callers always have a local fallback.
-export async function callAI(task, input, context = {}, timeoutMs = 55000) {
+// Client for the AI router. Prefers the serverless route (keys stay server-side);
+// on static hosting with no /api route it runs the same router in the browser (keyless provider only).
+// Callers always have a local fallback on top of this.
+let serverless = null; // null = unknown, true/false once probed
+
+async function viaServer(task, input, context, timeoutMs) {
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), timeoutMs);
   try {
-    const res = await fetch('/api/ai', {
+    const res = await fetch(`${import.meta.env.BASE_URL}api/ai`, {
       method: 'POST',
       signal: ctrl.signal,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ task, input, context }),
     });
-    const json = await res.json().catch(() => ({ ok: false }));
-    return json;
+    const isJSON = (res.headers.get('content-type') || '').includes('application/json');
+    if (!isJSON) { serverless = false; return null; }
+    serverless = true;
+    return await res.json();
   } catch (e) {
     return { ok: false, errors: [e.message] };
   } finally {
     clearTimeout(t);
+  }
+}
+
+async function viaBrowser(task, input, context, timeoutMs) {
+  const { runTask } = await import('../../api/ai.js');
+  return Promise.race([
+    runTask(task, input, context),
+    new Promise((r) => setTimeout(() => r({ ok: false, errors: ['timeout'] }), timeoutMs)),
+  ]);
+}
+
+export async function callAI(task, input, context = {}, timeoutMs = 55000) {
+  try {
+    if (serverless !== false) {
+      const r = await viaServer(task, input, context, timeoutMs);
+      if (r) return r;
+    }
+    return await viaBrowser(task, input, context, timeoutMs);
+  } catch (e) {
+    return { ok: false, errors: [e.message] };
   }
 }
 

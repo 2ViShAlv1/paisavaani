@@ -2,6 +2,9 @@
 // Provider chain: GROQ_API_KEY -> GEMINI_API_KEY -> OPENAI-compatible keyless (Pollinations).
 // The client always has a local rule-based fallback, so the product never dead-ends.
 
+// Browser-safe: on static hosting (no server) the client imports this module and only the keyless provider is used.
+const ENV = typeof process !== "undefined" && process.env ? process.env : {};
+
 export const config = { maxDuration: 60 };
 
 const CATEGORIES = [
@@ -112,14 +115,14 @@ async function callOpenAICompat({ url, key, model, system, user, timeoutMs = 450
 
 function providers() {
   const list = [];
-  if (process.env.GROQ_API_KEY) {
-    list.push({ name: 'Groq · Llama 3.3 70B', url: 'https://api.groq.com/openai/v1/chat/completions', key: process.env.GROQ_API_KEY, model: process.env.GROQ_MODEL || 'llama-3.3-70b-versatile' });
+  if (ENV.GROQ_API_KEY) {
+    list.push({ name: 'Groq · Llama 3.3 70B', url: 'https://api.groq.com/openai/v1/chat/completions', key: ENV.GROQ_API_KEY, model: ENV.GROQ_MODEL || 'llama-3.3-70b-versatile' });
   }
-  if (process.env.GEMINI_API_KEY) {
-    list.push({ name: 'Google Gemini', url: 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', key: process.env.GEMINI_API_KEY, model: process.env.GEMINI_MODEL || 'gemini-2.5-flash' });
+  if (ENV.GEMINI_API_KEY) {
+    list.push({ name: 'Google Gemini', url: 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', key: ENV.GEMINI_API_KEY, model: ENV.GEMINI_MODEL || 'gemini-2.5-flash' });
   }
   // keyless fallback: low reasoning effort keeps latency ~10-15s
-  list.push({ name: 'Pollinations · GPT-OSS 20B', url: 'https://text.pollinations.ai/openai', key: process.env.POLLINATIONS_TOKEN || '', model: 'openai', extra: { reasoning_effort: 'low' }, timeoutMs: 50000 });
+  list.push({ name: 'Pollinations · GPT-OSS 20B', url: 'https://text.pollinations.ai/openai', key: ENV.POLLINATIONS_TOKEN || '', model: 'openai', extra: { reasoning_effort: 'low' }, timeoutMs: 50000 });
   return list;
 }
 
